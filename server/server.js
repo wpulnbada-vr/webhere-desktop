@@ -366,9 +366,45 @@ function startServer(options = {}) {
   return new Promise((resolve) => {
     const server = app.listen(port, host, () => {
       console.log(`[WebImageHere] http://localhost:${port}`);
+      recoverOrphanedJobs(chromePath);
       resolve({ app, server, port });
     });
   });
+}
+
+function recoverOrphanedJobs(chromePath) {
+  const history = loadHistory();
+  const orphaned = history.filter(h => h.status === 'running' || h.status === 'queued');
+  if (orphaned.length === 0) return;
+
+  console.log(`[WebImageHere] Recovering ${orphaned.length} interrupted job(s)...`);
+  for (const h of orphaned) {
+    const job = {
+      id: h.id,
+      url: h.url,
+      keyword: h.keyword || '',
+      status: 'queued',
+      createdAt: h.createdAt,
+      startedAt: null,
+      completedAt: null,
+      events: [],
+      lastEvent: null,
+      clients: [],
+      scraper: null,
+      result: null,
+      error: null,
+      _chromePath: chromePath,
+    };
+    jobs.set(h.id, job);
+    updateHistoryItem(h.id, { status: 'queued' });
+
+    if (getRunningCount() < MAX_CONCURRENT) {
+      runJob(job);
+    } else {
+      queue.push(h.id);
+    }
+    console.log(`[WebImageHere]   → Re-queued: "${h.keyword}" (${h.url})`);
+  }
 }
 
 // Standalone mode: run directly with `node server/server.js`
