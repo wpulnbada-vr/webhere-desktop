@@ -1,154 +1,138 @@
-# WebImageHere Desktop
+<p align="center">
+  <h1 align="center">WebImageHere</h1>
+  <p align="center">
+    A cross-platform desktop app for batch downloading images from the web.
+    <br />
+    Just enter a URL — WebImageHere handles the rest.
+  </p>
+  <p align="center">
+    <a href="../../releases"><img src="https://img.shields.io/github/v/release/wpulnbada-vr/WebImageHere?style=flat-square" alt="Release" /></a>
+    <img src="https://img.shields.io/badge/Electron-35-47848F?style=flat-square&logo=electron&logoColor=white" alt="Electron" />
+    <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-0078D4?style=flat-square" alt="Platform" />
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License" /></a>
+  </p>
+</p>
 
-웹사이트에서 이미지를 자동으로 수집하는 데스크톱 앱.
-설치(.exe)만 하면 바로 사용 가능 — 별도 서버 설정 불필요.
+---
 
-![Electron](https://img.shields.io/badge/Electron-35-47848F?logo=electron&logoColor=white)
-![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
+## Features
 
-## 주요 기능
+- **Batch Image Download** — Enter a URL and an optional keyword to collect all matching images automatically
+- **Smart Page Navigation** — Follows pagination, multi-page galleries, and linked sub-pages to find every image
+- **Lazy-load Aware** — Scrolls pages to trigger lazy-loaded content and parses `data-src`, `srcset`, and other deferred attributes
+- **High-fidelity Capture** — Uses Chrome DevTools Protocol to capture original image data directly from network responses, ensuring full-resolution downloads
+- **Duplicate Filtering** — Skips thumbnails, icons, and already-downloaded files based on size and pattern matching
+- **Concurrent Downloads** — Parallel download pipeline with configurable concurrency
+- **ZIP Export** — Download an entire image folder as a single .zip archive
+- **Job Queue** — Run up to 2 scraping jobs simultaneously with automatic queuing
+- **Persistent History** — Browse and manage past downloads across sessions
 
-- **키워드 검색 스크래핑** — URL + 키워드 입력만으로 관련 이미지 자동 수집
-- **WordPress 사이트 최적화** — 검색 페이지네이션, 카테고리 브라우징 자동 전환
-- **Cloudflare 우회** — Stealth 플러그인 기반 자동 감지 및 우회
-- **CDN 안티핫링크 우회** — CDP 네트워크 캡처로 원본 이미지 데이터 직접 추출
-- **Lazy-load 대응** — 자동 스크롤 + data-src/srcset 속성 완전 파싱
-- **게시물 내부 페이지네이션** — 멀티페이지 갤러리 포스트 자동 탐색
-- **ZIP 다운로드** — 폴더별 일괄 압축 다운로드
-- **시스템 트레이** — 닫기 버튼으로 트레이 최소화, 백그라운드 실행
-- **단일 인스턴스** — 중복 실행 방지, 기존 창 자동 포커스
+## Download
 
-## 아키텍처
+### Windows
 
-```
-[Electron Main Process]
-    ├── Express Server (in-process, 127.0.0.1:{auto-port})
-    ├── Puppeteer + Chrome for Testing (첫 실행 시 자동 다운로드)
-    └── BrowserWindow → http://localhost:{port}
-```
+Download the latest installer from the [**Releases**](../../releases) page.
 
-- Electron이 Express 서버를 내부에서 시작 (외부 노출 없음)
-- BrowserWindow가 localhost로 React UI를 로드
-- Chrome for Testing을 첫 실행 시 `@puppeteer/browsers`로 자동 다운로드 (~130MB)
-- 포트 자동 탐색 (3000~3099)
+> On first launch, the app will download a lightweight Chromium runtime (~130 MB) for headless browsing.
+> Progress is shown in the title bar. This only happens once.
 
-## 설치 및 실행
-
-### Windows (.exe 인스톨러)
-
-[Releases](../../releases) 페이지에서 `WebImageHere-Setup-x.x.x.exe`를 다운로드하여 설치합니다.
-
-> 첫 실행 시 Chrome for Testing이 자동 다운로드됩니다 (~130MB).
-> 타이틀바에 진행률이 표시됩니다.
-
-### 소스에서 빌드
+### Linux
 
 ```bash
-# 1. 클론
-git clone https://github.com/wpulnbada-vr/WebImageHere.git
-cd WebImageHere
-
-# 2. 의존성 설치
-npm install
-
-# 3. 개발 모드 실행
-npm start
-
-# 4. Windows 인스톨러 빌드
-npm run build:win
-
-# 5. Linux AppImage 빌드
-npm run build:linux
+# AppImage
+chmod +x WebImageHere-*.AppImage
+./WebImageHere-*.AppImage
 ```
 
-빌드 결과물은 `dist/` 디렉토리에 생성됩니다.
+## Build from Source
 
-## 사용법
+```bash
+git clone https://github.com/wpulnbada-vr/WebImageHere.git
+cd WebImageHere
+npm install
 
-1. 앱 실행
-2. URL 입력 (예: `https://example.com/gallery`)
-3. 키워드 입력 (선택사항 — 비워두면 해당 URL의 이미지만 수집)
-4. **스크래핑 시작** 클릭
-5. 완료 후 **다운로드 폴더** 버튼으로 결과 확인
+# Development
+npm start
 
-## 데이터 경로
+# Build installer
+npm run build:win     # Windows (NSIS)
+npm run build:linux   # Linux (AppImage)
+```
 
-| 항목 | Windows | Linux |
+Build output is written to `dist/`.
+
+## Usage
+
+1. Launch the app
+2. Enter a target URL (e.g., a gallery or blog page)
+3. Optionally enter a keyword to filter results
+4. Click **Start** — progress is streamed in real time
+5. View results in the built-in gallery or open the downloads folder
+
+## How It Works
+
+WebImageHere runs a local Express server inside the Electron process, paired with a headless Chromium instance powered by Puppeteer.
+
+```
+Electron Main Process
+├── Express API Server (localhost only, auto-assigned port)
+├── Puppeteer (headless Chromium)
+└── BrowserWindow (React UI)
+```
+
+**Image Discovery Pipeline:**
+
+1. Navigate to the target URL with a full browser context
+2. If a keyword is provided, search the site and collect matching post URLs
+3. For each page, scroll to trigger lazy-loaded content
+4. Extract image URLs from DOM elements (`img[src]`, `img[srcset]`, `a[href]`) and network traffic (CDP)
+5. Filter by minimum dimensions and file size to skip thumbnails and icons
+6. Download images in parallel batches, with automatic retry and fallback
+
+**Key Design Decisions:**
+
+- Chromium is not bundled — it's downloaded on first launch via `@puppeteer/browsers`, keeping the installer under 80 MB
+- The Express server binds exclusively to `127.0.0.1` and is never exposed to the network
+- Cross-platform Chrome detection (`CHROME_PATH` env > managed cache > system install)
+- Single instance lock prevents multiple app windows from conflicting
+
+## Data Storage
+
+| Item | Windows | Linux |
 |------|---------|-------|
-| 다운로드 이미지 | `Documents\WebImageHere Downloads\` | `~/Documents/WebImageHere Downloads/` |
-| 작업 히스토리 | `%APPDATA%\WebImageHere\history.json` | `~/.config/WebImageHere/history.json` |
-| Chrome 캐시 | `%APPDATA%\WebImageHere\chrome\` | `~/.config/WebImageHere/chrome/` |
+| Downloaded images | `Documents\WebImageHere Downloads\` | `~/Documents/WebImageHere Downloads/` |
+| Job history | `%APPDATA%\WebImageHere\history.json` | `~/.config/WebImageHere/history.json` |
+| Chromium runtime | `%APPDATA%\WebImageHere\chrome\` | `~/.config/WebImageHere/chrome/` |
 
-## 프로젝트 구조
+## Tech Stack
+
+| Component | Technology |
+|-----------|-----------|
+| Desktop framework | [Electron](https://www.electronjs.org/) 35 |
+| Packaging | [electron-builder](https://www.electron.build/) |
+| Backend | [Express](https://expressjs.com/) 4 |
+| Browser automation | [Puppeteer](https://pptr.dev/) |
+| Frontend | React + [Vite](https://vite.dev/) |
+| Archive | [Archiver](https://www.archiverjs.com/) |
+
+## Project Structure
 
 ```
 WebImageHere/
-├── package.json          # Electron + electron-builder 설정
-├── main.js               # Electron 메인 프로세스
-├── preload.js            # contextBridge IPC 브릿지
+├── main.js            # Electron main process
+├── preload.js         # Context-isolated IPC bridge
 ├── server/
-│   ├── server.js         # Express 서버 (startServer() 함수)
-│   └── scraper.js        # Puppeteer 스크래퍼 + 크로스플랫폼 findChrome()
-├── public/               # React UI (Vite 빌드 결과)
-│   ├── index.html
-│   └── assets/
+│   ├── server.js      # Express API (startServer function)
+│   └── scraper.js     # Puppeteer-based image collector
+├── public/            # Production React build
 └── build/
-    └── icon.png          # 앱 아이콘
+    └── icon.png       # App icon
 ```
 
-## 기술 스택
+## Contributing
 
-| 구성 요소 | 기술 |
-|-----------|------|
-| 데스크톱 프레임워크 | [Electron](https://www.electronjs.org/) 35 |
-| 빌드/패키징 | [electron-builder](https://www.electron.build/) (NSIS) |
-| 백엔드 | [Express](https://expressjs.com/) 4 |
-| 브라우저 자동화 | [Puppeteer](https://pptr.dev/) + [Stealth Plugin](https://github.com/nicedoc/puppeteer-extra-plugin-stealth) |
-| Chrome 관리 | [@puppeteer/browsers](https://www.npmjs.com/package/@puppeteer/browsers) |
-| 프론트엔드 | React (Vite 빌드) |
-| 압축 | [Archiver](https://www.archiverjs.com/) |
-
-## 개발 노트
-
-### Chrome 자동 다운로드
-
-앱에 Chrome을 번들하지 않아 인스톨러 크기를 ~80MB로 유지합니다.
-첫 실행 시 `@puppeteer/browsers`가 Chrome for Testing stable 버전을 다운로드합니다.
-다운로드 실패 시 시스템에 설치된 Chrome/Chromium으로 자동 폴백합니다.
-
-### 크로스플랫폼 Chrome 탐지
-
-`findChrome()` 함수가 OS별로 Chrome을 탐색합니다:
-
-- `CHROME_PATH` 환경변수 (최우선)
-- `@puppeteer/browsers` 캐시 디렉토리
-- 시스템 설치 경로 (Windows: Program Files, LocalAppData / macOS: /Applications / Linux: /usr/bin)
-
-### 서버 보안
-
-Electron 모드에서 Express는 `127.0.0.1`에만 바인딩됩니다.
-외부 네트워크에서 접근할 수 없습니다.
-
-## 빌드 설정 (electron-builder)
-
-```jsonc
-{
-  "asarUnpack": [
-    // Puppeteer가 Chrome 프로세스를 생성하려면 asar 밖에 있어야 함
-    "node_modules/puppeteer-core/**/*",
-    "node_modules/puppeteer-extra/**/*",
-    "node_modules/puppeteer-extra-plugin-stealth/**/*"
-  ],
-  "nsis": {
-    "oneClick": false,                        // 설치 옵션 표시
-    "allowToChangeInstallationDirectory": true, // 경로 선택 가능
-    "createDesktopShortcut": true,
-    "createStartMenuShortcut": true
-  }
-}
-```
+Contributions are welcome! Please open an issue first to discuss what you'd like to change.
 
 ## License
 
-MIT
+[MIT](LICENSE)
