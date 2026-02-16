@@ -30,8 +30,8 @@ function saveHistory(history) {
 
 function addToHistory(job) {
   const history = loadHistory();
-  if (history.some(h => h.id === job.id)) return;
-  history.unshift({
+  const idx = history.findIndex(h => h.id === job.id);
+  const entry = {
     id: job.id,
     url: job.url,
     keyword: job.keyword,
@@ -40,7 +40,12 @@ function addToHistory(job) {
     completedAt: job.completedAt,
     result: job.result,
     error: job.error,
-  });
+  };
+  if (idx !== -1) {
+    history[idx] = entry;
+  } else {
+    history.unshift(entry);
+  }
   if (history.length > 200) history.length = 200;
   saveHistory(history);
 }
@@ -75,6 +80,7 @@ function processQueue() {
 function runJob(job) {
   job.status = 'running';
   job.startedAt = new Date().toISOString();
+  updateHistoryItem(job.id, { status: 'running', startedAt: job.startedAt });
 
   const scraper = new ImageScraper();
   job.scraper = scraper;
@@ -196,6 +202,7 @@ function startServer(options = {}) {
     };
 
     jobs.set(jobId, job);
+    addToHistory(job);
 
     if (getRunningCount() < MAX_CONCURRENT) {
       runJob(job);
@@ -290,26 +297,26 @@ function startServer(options = {}) {
     res.json({ status: 'deleted' });
   });
 
-  // GET /api/history
+  // GET /api/history — Persistent history with live status from memory
   app.get('/api/history', (req, res) => {
     const history = loadHistory();
-    const historyIds = new Set(history.map(h => h.id));
-    const active = [];
-    for (const job of jobs.values()) {
-      if (!historyIds.has(job.id)) {
-        active.push({
-          id: job.id,
-          url: job.url,
-          keyword: job.keyword,
-          status: job.status,
-          createdAt: job.createdAt,
-          completedAt: job.completedAt,
-          result: job.result,
-          error: job.error,
-        });
+    const result = history.map(h => {
+      const memJob = jobs.get(h.id);
+      if (memJob) {
+        return {
+          id: memJob.id,
+          url: memJob.url,
+          keyword: memJob.keyword,
+          status: memJob.status,
+          createdAt: memJob.createdAt,
+          completedAt: memJob.completedAt,
+          result: memJob.result,
+          error: memJob.error,
+        };
       }
-    }
-    res.json([...active, ...history]);
+      return h;
+    });
+    res.json(result);
   });
 
   // GET /api/files/:folder
