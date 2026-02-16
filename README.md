@@ -104,6 +104,46 @@ Electron Main Process
 | Job history | `%APPDATA%\WebImageHere\history.json` | `~/.config/WebImageHere/history.json` |
 | Chromium runtime | `%APPDATA%\WebImageHere\chrome\` | `~/.config/WebImageHere/chrome/` |
 
+## Uninstall
+
+### Windows
+
+1. Open **Settings > Apps > Installed Apps** (or **Control Panel > Programs**)
+2. Find **WebImageHere** and click **Uninstall**
+
+The uninstaller automatically removes:
+- Application files and shortcuts
+- App data (`%APPDATA%\WebImageHere\`) including Chromium cache and job history
+
+> **Note:** Downloaded images in `Documents\WebImageHere Downloads\` are **not** deleted by the uninstaller. Delete this folder manually if no longer needed.
+
+### Linux
+
+```bash
+# Remove the AppImage
+rm WebImageHere-*.AppImage
+
+# Remove app data and Chromium cache
+rm -rf ~/.config/WebImageHere
+
+# (Optional) Remove downloaded images
+rm -rf ~/Documents/WebImageHere\ Downloads
+```
+
+### In-App Reset
+
+Right-click the **system tray icon** and select **"데이터 초기화"** (Reset App Data) to delete history and cached Chromium without uninstalling the app. An optional checkbox lets you also delete all downloaded images.
+
+### CLI Reset
+
+```bash
+# Remove history and Chromium cache (keep downloaded images)
+WebImageHere --clear-data
+
+# Remove everything including downloaded images
+WebImageHere --clear-data --include-downloads
+```
+
 ## Tech Stack
 
 | Component | Technology |

@@ -52,7 +52,9 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "WebImageHere"
+      "shortcutName": "WebImageHere",
+      "deleteAppDataOnUninstall": true,
+      "uninstallDisplayName": "WebImageHere"
     },
     "linux": {
       "target": "AppImage",

@@ -19,6 +19,30 @@ for (const dir of [DOWNLOADS_DIR, userDataDir, CHROME_CACHE_DIR]) {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 }
 
+// ── CLI: --clear-data flag ─────────────────────────────────────────────────────
+if (process.argv.includes('--clear-data')) {
+  const deleteAll = process.argv.includes('--include-downloads');
+  const removed = [];
+  if (fs.existsSync(path.join(userDataDir, 'history.json'))) {
+    fs.unlinkSync(path.join(userDataDir, 'history.json'));
+    removed.push('history.json');
+  }
+  const chromeDir = path.join(userDataDir, 'chrome');
+  if (fs.existsSync(chromeDir)) {
+    fs.rmSync(chromeDir, { recursive: true, force: true });
+    removed.push('chrome/');
+  }
+  if (deleteAll) {
+    const dlDir = path.join(documentsDir, 'WebImageHere Downloads');
+    if (fs.existsSync(dlDir)) {
+      fs.rmSync(dlDir, { recursive: true, force: true });
+      removed.push('WebImageHere Downloads/');
+    }
+  }
+  console.log(removed.length > 0 ? `Removed: ${removed.join(', ')}` : 'Nothing to clean up.');
+  process.exit(0);
+}
+
 // ── Single Instance Lock ───────────────────────────────────────────────────────
 const gotLock = app.requestSingleInstanceLock();
 if (!gotLock) {
@@ -176,6 +200,17 @@ function createTray() {
     },
     { type: 'separator' },
     {
+      label: '데이터 초기화',
+      click: () => {
+        if (mainWindow) {
+          mainWindow.show();
+          mainWindow.focus();
+        }
+        showResetDialog();
+      },
+    },
+    { type: 'separator' },
+    {
       label: '종료',
       click: () => {
         app.isQuitting = true;
@@ -193,7 +228,58 @@ function createTray() {
   });
 }
 
-// ── IPC handlers ───────────────────────────────────────────────────────────────
+// ── Data cleanup ────────────────────────────────────────────────────────────────
+async function clearAppData(options = {}) {
+  const { deleteDownloads = false, deleteChrome = true, deleteHistory = true } = options;
+  const removed = [];
+
+  if (deleteHistory && fs.existsSync(HISTORY_FILE)) {
+    fs.unlinkSync(HISTORY_FILE);
+    removed.push('Job history');
+  }
+
+  if (deleteChrome && fs.existsSync(CHROME_CACHE_DIR)) {
+    fs.rmSync(CHROME_CACHE_DIR, { recursive: true, force: true });
+    removed.push('Chromium runtime (~130 MB)');
+  }
+
+  if (deleteDownloads && fs.existsSync(DOWNLOADS_DIR)) {
+    fs.rmSync(DOWNLOADS_DIR, { recursive: true, force: true });
+    removed.push('Downloaded images');
+  }
+
+  return removed;
+}
+
+async function showResetDialog() {
+  const { response, checkboxChecked } = await dialog.showMessageBox(mainWindow, {
+    type: 'warning',
+    buttons: ['Cancel', 'Reset'],
+    defaultId: 0,
+    cancelId: 0,
+    title: 'Reset App Data',
+    message: 'Delete app data and reset to initial state?',
+    detail: 'This will remove:\n- Job history\n- Cached Chromium browser (~130 MB)\n\nDownloaded images will NOT be deleted unless checked below.',
+    checkboxLabel: 'Also delete all downloaded images',
+    checkboxChecked: false,
+  });
+
+  if (response === 1) {
+    const removed = await clearAppData({
+      deleteDownloads: checkboxChecked,
+      deleteChrome: true,
+      deleteHistory: true,
+    });
+    dialog.showMessageBox(mainWindow, {
+      type: 'info',
+      title: 'Reset Complete',
+      message: `Deleted: ${removed.join(', ')}`,
+      detail: 'Restart the app to apply changes.',
+    });
+  }
+}
+
+// ── IPC handlers ────────────────────────────────────────────────────────────────
 function setupIPC() {
   ipcMain.handle('open-downloads', () => {
     shell.openPath(DOWNLOADS_DIR);
