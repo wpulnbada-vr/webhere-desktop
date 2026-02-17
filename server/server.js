@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const archiver = require('archiver');
-const serveIndex = require('serve-index');
+// serve-index removed for security
 const ImageScraper = require('./scraper');
 const Monitor = require('./monitor');
 const Auth = require('./auth');
@@ -172,7 +172,8 @@ function startServer(options = {}) {
   const app = express();
   app.use(express.json());
   app.use(express.static(publicDir));
-  app.use('/downloads', express.static(downloadsDir), serveIndex(downloadsDir, { icons: true }));
+  // /downloads — auth-protected static file serving
+  app.use('/downloads', Auth.authMiddleware, express.static(downloadsDir));
 
   // POST /api/scrape
   app.post('/api/scrape', (req, res) => {
@@ -299,8 +300,8 @@ function startServer(options = {}) {
     res.json(result);
   });
 
-  // GET /browse/:folder
-  app.get('/browse/:folder', (req, res) => {
+  // GET /browse/:folder — auth-protected
+  app.get('/browse/:folder', Auth.authMiddleware, (req, res) => {
     const folder = req.params.folder;
     const dir = path.join(downloadsDir, folder);
     if (!fs.existsSync(dir)) return res.status(404).send('Folder not found');
@@ -453,7 +454,7 @@ ${paginationHtml}
     res.json(masked);
   });
 
-  app.post('/api/monitor/config', (req, res) => {
+  app.post('/api/monitor/config', Auth.authMiddleware, (req, res) => {
     try {
       const config = Monitor.loadConfig();
       const { webhookUrl, enabled, notifyOnComplete, notifyOnFail, notifyOnDiskWarning, diskWarningThresholdMB } = req.body;
@@ -470,7 +471,7 @@ ${paginationHtml}
     }
   });
 
-  app.post('/api/monitor/test-alert', async (req, res) => {
+  app.post('/api/monitor/test-alert', Auth.authMiddleware, async (req, res) => {
     const config = Monitor.loadConfig();
     if (!config.discord.webhookUrl) return res.status(400).json({ error: 'No webhook URL configured' });
     const ok = await Monitor.sendDiscordAlert(config, 'test', {});

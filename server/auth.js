@@ -5,11 +5,24 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
 let CONFIG_FILE;
-const JWT_SECRET = crypto.randomBytes(64).toString('hex');
+let JWT_SECRET;
 const JWT_EXPIRES = '24h';
 
 function init(configDir) {
   CONFIG_FILE = path.join(configDir, 'auth-config.json');
+  // Persist JWT_SECRET so tokens survive server restarts
+  const secretFile = path.join(configDir, '.jwt-secret');
+  try {
+    if (fs.existsSync(secretFile)) {
+      JWT_SECRET = fs.readFileSync(secretFile, 'utf-8').trim();
+    }
+  } catch {}
+  if (!JWT_SECRET) {
+    JWT_SECRET = crypto.randomBytes(64).toString('hex');
+    try {
+      fs.writeFileSync(secretFile, JWT_SECRET, { mode: 0o600 });
+    } catch {}
+  }
 }
 
 function loadConfig() {
