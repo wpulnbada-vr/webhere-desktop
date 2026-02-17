@@ -29,7 +29,7 @@ function saveHistory(history) {
 }
 
 function addToHistory(job) {
-  const history = loadHistory();
+  let history = loadHistory();
   const idx = history.findIndex(h => h.id === job.id);
   const entry = {
     id: job.id,
@@ -45,6 +45,16 @@ function addToHistory(job) {
     history[idx] = entry;
   } else {
     history.unshift(entry);
+  }
+  // Remove zero-file duplicates: if this job completed with results,
+  // delete older entries with the same url+keyword that have 0 files
+  if (job.status === 'completed' && job.result?.total > 0) {
+    history = history.filter(h =>
+      h.id === job.id ||
+      h.url !== job.url ||
+      h.keyword !== job.keyword ||
+      (h.result?.total || 0) > 0
+    );
   }
   if (history.length > 200) history.length = 200;
   saveHistory(history);
