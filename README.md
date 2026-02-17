@@ -4,14 +4,26 @@
     A cross-platform desktop app for batch downloading images from the web.
     <br />
     Just enter a URL — WebImageHere handles the rest.
+    <br />
+    <strong>v0.2 — Web Drive + OpenClaw Integration</strong>
   </p>
   <p align="center">
     <a href="../../releases"><img src="https://img.shields.io/github/v/release/wpulnbada-vr/WebImageHere?style=flat-square" alt="Release" /></a>
+    <img src="https://img.shields.io/badge/version-0.2-blue?style=flat-square" alt="Version" />
     <img src="https://img.shields.io/badge/Electron-35-47848F?style=flat-square&logo=electron&logoColor=white" alt="Electron" />
     <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-0078D4?style=flat-square" alt="Platform" />
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License" /></a>
   </p>
 </p>
+
+---
+
+## What's New in v0.2
+
+- **Web Drive** — File manager now works like a cloud drive: grid view, search, sort, share links, copy/move, drag & drop upload, image preview
+- **OpenClaw Integration** — Use with [WebImageClaw](https://github.com/wpulnbada-vr/webimage-claw) to control scraping and manage files via Discord/Telegram bot
+- **Scraper Refactoring** — Modular architecture with site-specific adapters (Strategy + Registry pattern)
+- **Enhanced Security** — Share link tokens, improved path traversal protection
 
 ---
 
@@ -41,6 +53,16 @@
 - **File Manager** — Browse, upload, download, delete files and folders directly from the dashboard
 - **ZIP Export** — Download selected files or entire folders as a single .zip archive
 - **Persistent History** — Browse and manage past downloads across sessions with bulk clear
+
+### Web Drive (v0.2)
+- **Grid / List View** — Toggle between image thumbnail grid and detailed file list
+- **Search & Sort** — Find files by name, sort by name/size/date
+- **Share Links** — Generate temporary share URLs (token-based, 24h expiry)
+- **Copy & Move** — Copy or move files/folders between directories
+- **Context Menu** — Right-click for quick actions (copy, move, delete, share)
+- **Drag & Drop Upload** — Drop files directly into the browser to upload
+- **Image Preview** — Click to view full-size images with zoom
+- **OpenClaw Compatible** — Manage files remotely via [WebImageClaw](https://github.com/wpulnbada-vr/webimage-claw) and OpenClaw bot
 
 ### Security
 - **Admin Authentication** — Password-protected dashboard (bcrypt hashed, JWT tokens)
