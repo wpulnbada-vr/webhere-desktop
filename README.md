@@ -1,15 +1,12 @@
 <p align="center">
-  <h1 align="center">WebImageHere</h1>
+  <h1 align="center">WebHere Desktop</h1>
   <p align="center">
-    A cross-platform desktop app for batch downloading images from the web.
+    A cross-platform desktop app for organizing and archiving publicly available images.
     <br />
-    Just enter a URL — WebImageHere handles the rest.
-    <br />
-    <strong>v0.2 — Web Drive + OpenClaw Integration</strong>
+    Just enter a URL — WebHere handles the rest.
   </p>
   <p align="center">
-    <a href="../../releases"><img src="https://img.shields.io/github/v/release/wpulnbada-vr/WebImageHere?style=flat-square" alt="Release" /></a>
-    <img src="https://img.shields.io/badge/version-0.2-blue?style=flat-square" alt="Version" />
+    <a href="../../releases"><img src="https://img.shields.io/github/v/release/wpulnbada-vr/webhere-desktop?style=flat-square" alt="Release" /></a>
     <img src="https://img.shields.io/badge/Electron-35-47848F?style=flat-square&logo=electron&logoColor=white" alt="Electron" />
     <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-0078D4?style=flat-square" alt="Platform" />
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License" /></a>
@@ -18,43 +15,38 @@
 
 ---
 
-## What's New in v0.2
+## Disclaimer
 
-- **Web Drive** — File manager now works like a cloud drive: grid view, search, sort, share links, copy/move, drag & drop upload, image preview
-- **OpenClaw Integration** — Use with [WebImageClaw](https://github.com/wpulnbada-vr/webimage-claw) to control scraping and manage files via Discord/Telegram bot
-- **Scraper Refactoring** — Modular architecture with site-specific adapters (Strategy + Registry pattern)
-- **Enhanced Security** — Share link tokens, improved path traversal protection
+This tool is intended for **personal archival** and **educational purposes only**. Users are solely responsible for ensuring their usage complies with:
 
----
+- The **terms of service** of any website they access
+- Applicable **copyright and intellectual property** laws
+- **robots.txt** directives and site access policies
 
-## Screenshots
-
-| Scraping Dashboard | Monitoring & Statistics |
-|:--:|:--:|
-| ![Main Dashboard](docs/screenshot-main.png) | ![Monitoring](docs/screenshot-monitor.png) |
+The developers assume no liability for misuse of this software. Do not use this tool to download copyrighted content without explicit permission from the content owner.
 
 ---
 
 ## Features
 
-### Image Scraping
-- **Batch Image Download** — Enter a URL and an optional keyword to collect all matching images automatically
-- **Smart Page Navigation** — Follows pagination, multi-page galleries, and linked sub-pages to find every image
+### Image Archiving
+- **Batch Processing** — Enter a URL and an optional keyword to collect matching images
+- **Smart Page Navigation** — Follows pagination, multi-page galleries, and linked sub-pages
 - **Lazy-load Aware** — Scrolls pages to trigger lazy-loaded content and parses `data-src`, `srcset`, and other deferred attributes
-- **High-fidelity Capture** — Uses Chrome DevTools Protocol to capture original image data directly from network responses, ensuring full-resolution downloads
+- **CDP Capture** — Uses Chrome DevTools Protocol to capture original-quality images from network responses
 - **Duplicate Filtering** — Skips thumbnails, icons, and already-downloaded files based on size and pattern matching
 - **Concurrent Downloads** — Parallel download pipeline with configurable concurrency
-- **Job Queue** — Run up to 2 scraping jobs simultaneously with automatic queuing
+- **Job Queue** — Run up to 2 jobs simultaneously with automatic queuing
 
 ### Monitoring & Management
-- **System Monitoring** — Real-time CPU, memory, disk, Puppeteer status dashboard
-- **Job Statistics** — Success rate donut chart, top sites/keywords bar charts, 30-day activity graph
+- **System Monitoring** — Real-time CPU, memory, disk, browser status dashboard
+- **Job Statistics** — Success rate chart, top sites/keywords, 30-day activity graph
 - **Discord Alerts** — Webhook notifications for job completion, failure, and disk warnings
-- **File Manager** — Browse, upload, download, delete files and folders directly from the dashboard
+- **File Manager** — Browse, upload, download, delete files and folders from the dashboard
 - **ZIP Export** — Download selected files or entire folders as a single .zip archive
-- **Persistent History** — Browse and manage past downloads across sessions with bulk clear
+- **Persistent History** — Browse and manage past jobs across sessions with bulk clear
 
-### Web Drive (v0.2)
+### Web Drive
 - **Grid / List View** — Toggle between image thumbnail grid and detailed file list
 - **Search & Sort** — Find files by name, sort by name/size/date
 - **Share Links** — Generate temporary share URLs (token-based, 24h expiry)
@@ -62,7 +54,7 @@
 - **Context Menu** — Right-click for quick actions (copy, move, delete, share)
 - **Drag & Drop Upload** — Drop files directly into the browser to upload
 - **Image Preview** — Click to view full-size images with zoom
-- **OpenClaw Compatible** — Manage files remotely via [WebImageClaw](https://github.com/wpulnbada-vr/webimage-claw) and OpenClaw bot
+- **OpenClaw Compatible** — Manage files remotely via [WebClaw](https://github.com/wpulnbada-vr/webclaw) and OpenClaw bot
 
 ### Security
 - **Admin Authentication** — Password-protected dashboard (bcrypt hashed, JWT tokens)
@@ -82,15 +74,15 @@ Download the latest installer from the [**Releases**](../../releases) page.
 
 ```bash
 # AppImage
-chmod +x WebImageHere-*.AppImage
-./WebImageHere-*.AppImage
+chmod +x WebHere-*.AppImage
+./WebHere-*.AppImage
 ```
 
 ## Build from Source
 
 ```bash
-git clone https://github.com/wpulnbada-vr/WebImageHere.git
-cd WebImageHere
+git clone https://github.com/wpulnbada-vr/webhere-desktop.git
+cd webhere-desktop
 npm install
 
 # Development
@@ -113,24 +105,24 @@ Build output is written to `dist/`.
 
 ### First-time Setup
 
-On first access, you'll be prompted to set an admin password. This protects the file manager and API key features. The scraping dashboard works without authentication.
+On first access, you'll be prompted to set an admin password. This protects the file manager and API key features.
 
 ### Tabs
 
 | Tab | Description |
 |-----|-------------|
-| **Jobs** | Enter URLs, start scraping, view real-time progress and history |
+| **Jobs** | Enter URLs, start archiving, view real-time progress and history |
 | **Monitoring** | System metrics, job statistics, Discord alert config, API key management |
 | **Files** | Browse downloads, upload/delete files, download as ZIP |
 
 ## How It Works
 
-WebImageHere runs a local Express server inside the Electron process, paired with a headless Chromium instance powered by Puppeteer.
+WebHere runs a local Express server inside the Electron process, paired with a headless Chromium instance powered by Puppeteer.
 
 ```
 Electron Main Process
 ├── Express API Server (localhost only, auto-assigned port)
-│   ├── Scraping Engine (Puppeteer + CDP)
+│   ├── Archiving Engine (Puppeteer + CDP)
 │   ├── Auth Module (bcrypt + JWT + API Keys)
 │   ├── File Manager (upload/download/delete/ZIP)
 │   └── Monitor (metrics + Discord webhooks)
@@ -140,7 +132,7 @@ Electron Main Process
 **Image Discovery Pipeline:**
 
 1. Navigate to the target URL with a full browser context
-2. If a keyword is provided, search the site and collect matching post URLs
+2. If a keyword is provided, search the site and collect matching page URLs
 3. For each page, scroll to trigger lazy-loaded content
 4. Extract image URLs from DOM elements (`img[src]`, `img[srcset]`, `a[href]`) and network traffic (CDP)
 5. Filter by minimum dimensions and file size to skip thumbnails and icons
@@ -158,35 +150,35 @@ Electron Main Process
 
 | Item | Windows | Linux |
 |------|---------|-------|
-| Downloaded images | `Documents\WebImageHere Downloads\` | `~/Documents/WebImageHere Downloads/` |
-| Job history | `%APPDATA%\WebImageHere\history.json` | `~/.config/WebImageHere/history.json` |
-| Auth config | `%APPDATA%\WebImageHere\auth-config.json` | `~/.config/WebImageHere/auth-config.json` |
-| Chromium runtime | `%APPDATA%\WebImageHere\chrome\` | `~/.config/WebImageHere/chrome/` |
+| Downloaded images | `Documents\WebHere Downloads\` | `~/Documents/WebHere Downloads/` |
+| Job history | `%APPDATA%\WebHere\history.json` | `~/.config/WebHere/history.json` |
+| Auth config | `%APPDATA%\WebHere\auth-config.json` | `~/.config/WebHere/auth-config.json` |
+| Chromium runtime | `%APPDATA%\WebHere\chrome\` | `~/.config/WebHere/chrome/` |
 
 ## Uninstall
 
 ### Windows
 
 1. Open **Settings > Apps > Installed Apps** (or **Control Panel > Programs**)
-2. Find **WebImageHere** and click **Uninstall**
+2. Find **WebHere** and click **Uninstall**
 
 The uninstaller automatically removes:
 - Application files and shortcuts
-- App data (`%APPDATA%\WebImageHere\`) including Chromium cache and job history
+- App data (`%APPDATA%\WebHere\`) including Chromium cache and job history
 
-> **Note:** Downloaded images in `Documents\WebImageHere Downloads\` are **not** deleted by the uninstaller. Delete this folder manually if no longer needed.
+> **Note:** Downloaded images in `Documents\WebHere Downloads\` are **not** deleted by the uninstaller. Delete this folder manually if no longer needed.
 
 ### Linux
 
 ```bash
 # Remove the AppImage
-rm WebImageHere-*.AppImage
+rm WebHere-*.AppImage
 
 # Remove app data and Chromium cache
-rm -rf ~/.config/WebImageHere
+rm -rf ~/.config/WebHere
 
 # (Optional) Remove downloaded images
-rm -rf ~/Documents/WebImageHere\ Downloads
+rm -rf ~/Documents/WebHere\ Downloads
 ```
 
 ### In-App Reset
@@ -197,10 +189,10 @@ Right-click the **system tray icon** and select **"Reset Data"** to delete histo
 
 ```bash
 # Remove history and Chromium cache (keep downloaded images)
-WebImageHere --clear-data
+WebHere --clear-data
 
 # Remove everything including downloaded images
-WebImageHere --clear-data --include-downloads
+WebHere --clear-data --include-downloads
 ```
 
 ## Tech Stack
@@ -219,12 +211,12 @@ WebImageHere --clear-data --include-downloads
 ## Project Structure
 
 ```
-WebImageHere/
+webhere-desktop/
 ├── main.js            # Electron main process
 ├── preload.js         # Context-isolated IPC bridge
 ├── server/
 │   ├── server.js      # Express API (startServer function)
-│   ├── scraper.js     # Puppeteer-based image collector
+│   ├── scraper.js     # Puppeteer-based image archiver
 │   ├── auth.js        # Authentication (password + JWT + API keys)
 │   ├── filemanager.js # File management API
 │   └── monitor.js     # System monitoring + Discord alerts
