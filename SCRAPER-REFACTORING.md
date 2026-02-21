@@ -151,6 +151,49 @@ class ExampleAdapter extends BaseSiteAdapter {
 module.exports = ExampleAdapter;
 ```
 
+## Chrome Process Lifecycle Management
+
+### Problem
+
+Puppeteer의 `browser.close()`가 실패하면 Chrome 프로세스가 좀비로 남아 CPU/메모리를 지속 소모.
+서버 크래시나 비정상 종료 시 수백 개의 좀비 프로세스가 누적될 수 있음.
+
+### Solution (3-Layer Defense)
+
+**1. BrowserManager.cleanup() — PID 기반 강제 종료**
+```javascript
+async cleanup() {
+  // ... CDP detach, cache clear ...
+  if (this.browser) {
+    const pid = this.browser.process()?.pid;
+    try { await this.browser.close(); } catch {}
+    // close() 실패 시에도 Chrome 프로세스 강제 종료
+    if (pid) {
+      try { process.kill(pid, 0); process.kill(pid, 'SIGKILL'); } catch {}
+    }
+    this.browser = null;
+    this.page = null;
+  }
+}
+```
+
+**2. 서버 시작 시 고아 프로세스 정리**
+```javascript
+// 이전 실행에서 남은 Chrome 프로세스 정리
+execFileSync('pkill', ['-f', 'puppeteer_dev_profile'], { stdio: 'ignore', timeout: 5000 });
+```
+
+**3. Graceful Shutdown (SIGTERM/SIGINT 핸들러)**
+```javascript
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+// 실행 중인 모든 브라우저 인스턴스를 정리한 후 종료
+```
+
+### Files Modified
+- `browser-manager.js` — cleanup()에 PID 추적 + SIGKILL 추가
+- `server.js` / `index.js` — 시작 시 고아 정리 + graceful shutdown 핸들러
+
 ## Files Changed
 
 ### New Files (15)

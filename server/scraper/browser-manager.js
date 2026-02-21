@@ -186,7 +186,12 @@ class BrowserManager {
     this.capturedImages.clear();
     this.imageCache.clear();
     if (this.browser) {
+      const pid = this.browser.process()?.pid;
       try { await this.browser.close(); } catch {}
+      // Ensure Chrome process is killed even if close() fails
+      if (pid) {
+        try { process.kill(pid, 0); process.kill(pid, 'SIGKILL'); } catch {}
+      }
       this.browser = null;
       this.page = null;
     }

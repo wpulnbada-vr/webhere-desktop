@@ -2,11 +2,18 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const archiver = require('archiver');
+const { execFileSync } = require('child_process');
 // serve-index removed for security
 const ImageScraper = require('./scraper');
 const Monitor = require('./monitor');
 const Auth = require('./auth');
 const FileManager = require('./filemanager');
+
+// Kill orphaned Chrome processes from previous runs on startup
+try {
+  execFileSync('pkill', ['-f', 'puppeteer_dev_profile'], { stdio: 'ignore', timeout: 5000 });
+  console.log('[WebHere-Desktop] Cleaned up orphaned Chrome processes');
+} catch {}
 
 // Job store (in-memory)
 const jobs = new Map();
@@ -511,6 +518,25 @@ ${paginationHtml}
     }
     archive.finalize();
   });
+
+  // Graceful shutdown: clean up all running browsers before exit
+  async function gracefulShutdown(signal) {
+    console.log(`[WebHere-Desktop] ${signal} received, shutting down...`);
+    const cleanups = [];
+    for (const [id, job] of jobs) {
+      if (job.status === 'running' && job.scraper) {
+        job.scraper.abort();
+        if (job.scraper._bm) cleanups.push(job.scraper._bm.cleanup());
+      }
+    }
+    if (cleanups.length > 0) {
+      await Promise.allSettled(cleanups);
+      console.log(`[WebHere-Desktop] Cleaned up ${cleanups.length} browser(s)`);
+    }
+    process.exit(0);
+  }
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
   return new Promise((resolve) => {
     const server = app.listen(port, host, () => {

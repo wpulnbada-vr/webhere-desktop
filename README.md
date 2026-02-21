@@ -45,6 +45,7 @@ The developers assume no liability for misuse of this software. Do not use this 
 - **File Manager** — Browse, upload, download, delete files and folders from the dashboard
 - **ZIP Export** — Download selected files or entire folders as a single .zip archive
 - **Persistent History** — Browse and manage past jobs across sessions with bulk clear
+- **Chrome Process Management** — Automatic cleanup of orphaned Chrome processes on startup, PID-based force kill, and graceful shutdown
 
 ### Web Drive
 - **Grid / List View** — Toggle between image thumbnail grid and detailed file list
